@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\App\ProfileController;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
@@ -24,12 +25,23 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
     Route::get('/', function () {
-        // dd(tenant());
-        dd(tenant()->getAttributes());
+        return view('app.welcome');
+    });
 
-        // return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
+
+
+
+
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard');
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('Tenant.profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('Tenant.profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('Tenant.profile.destroy');
+        // Route::resource('users', tenantController::class);
     });
-    Route::get('/login', function () {
-        dd('login page');
-    });
+
+    require __DIR__ . '/tenant-auth.php';
 });
