@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Models\{Tenant, User};
 
 class seedTenantJob implements ShouldQueue
 {
@@ -15,9 +16,10 @@ class seedTenantJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    protected $tenent;
+    public function __construct(Tenant $tenent)
     {
-        //
+        $this->tenent = $tenent;
     }
 
     /**
@@ -25,6 +27,12 @@ class seedTenantJob implements ShouldQueue
      */
     public function handle(): void
     {
-        //
+        $this->tenent->run(function () {
+            user::create([
+                'name' => $this->tenent->name,
+                'email' => $this->tenent->email,
+                'password' => $this->tenent->password,
+            ]);
+        });
     }
 }
